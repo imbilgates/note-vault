@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { requestLoginOtp, verifyOtp } from "@/services/authService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import OtpFormSection from "./OtpFormSection";
 import { toast } from "sonner";
 
