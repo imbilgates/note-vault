@@ -1,0 +1,130 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { fetchNotes, createNote, deleteNote } from "@/services/noteService";
+import CreateNoteButton from "@/components/notes/CreateNoteButton";
+import NotesList from "@/components/notes/NotesList";
+import NewNoteModal from "@/components/notes/NewNoteModal";
+
+interface Note {
+  _id: string;
+  content: string;
+}
+
+export default function DashboardPage() {
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [token, setToken] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      router.push("/");
+      return;
+    }
+
+    try {
+      const payload = JSON.parse(atob(storedToken.split(".")[1]));
+      setEmail(payload.email);
+      setUsername(payload.username || "User");
+      setToken(storedToken);
+    } catch {
+      localStorage.removeItem("token");
+      router.push("/");
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (!token) return;
+    fetchNotes(token)
+      .then((data) => setNotes(data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, [token]);
+
+  const handleCreateNote = async (content: string) => {
+    if (!token) return;
+    setCreating(true);
+    try {
+      const newNote = await createNote(token, content);
+      setNotes((prev) => [newNote, ...prev]);
+      setOpenModal(false); // close modal
+    } catch (err) {
+      console.error("Failed to create note:", err);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDeleteNote = async (id: string) => {
+    if (!token) return;
+    try {
+      await deleteNote(token, id);
+      setNotes((prev) => prev.filter((note) => note._id !== id));
+    } catch (err) {
+      console.error("Failed to delete note:", err);
+    }
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    router.push("/");
+  };
+
+  return (
+    <main className="min-h-screen bg-white px-6 pt-4 pb-10">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Image
+            src="/assets/menu.png"
+            alt="NoteVault Logo"
+            width={47}
+            height={32}
+            priority
+          />
+          <h1 className="text-xl font-semibold">Dashboard</h1>
+        </div>
+        <button
+          onClick={handleSignOut}
+          className="text-blue-600 underline font-medium"
+        >
+          Sign Out
+        </button>
+      </div>
+
+      {/* Welcome Card */}
+      <div className="bg-white p-4 rounded-xl shadow-md mb-6">
+        <h2 className="text-lg font-bold mb-1">Welcome, {username}!</h2>
+        <p className="text-gray-600">
+          Email: {email}
+        </p>
+      </div>
+
+      {/* Create Note Button */}
+      <CreateNoteButton creating={creating} onCreate={() => setOpenModal(true)} />
+
+      {/* Notes Section */}
+      <div>
+        <h3 className="text-xl font-semibold mb-4"> Notes</h3>
+        <NotesList notes={notes} loading={loading} onDelete={handleDeleteNote} />
+      </div>
+
+      {/* Note Modal */}
+      <NewNoteModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onSubmit={handleCreateNote}
+        loading={creating}
+      />
+    </main>
+  );
+}
