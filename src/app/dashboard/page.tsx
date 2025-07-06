@@ -17,7 +17,7 @@ interface Note {
 }
 
 export default function DashboardPage() {
-  const { user, token, logout, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, token, logout, loading: authLoading } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
