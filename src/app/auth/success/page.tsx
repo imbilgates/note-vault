@@ -1,12 +1,6 @@
-import AuthSuccessPage from "@/components/auth/AuthSuccessPage";
+import ClientWrapper from "@/components/auth/client-wrapper";
 
-export default function Page({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
-  const token =
-    typeof searchParams?.token === "string" ? searchParams.token : undefined;
-
-  return <AuthSuccessPage token={token} />;
+export default function Page() {
+  return <ClientWrapper />;
 }
+
