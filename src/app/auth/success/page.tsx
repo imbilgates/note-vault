@@ -1,6 +1,7 @@
 "use client";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -10,13 +11,16 @@ export default function AuthSuccessPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const token = searchParams.get("token");
+    // Ensure this runs only in the browser
+    if (typeof window !== "undefined") {
+      const token = searchParams.get("token");
 
-    if (token) {
-      localStorage.setItem("token", token);
-      router.replace("/dashboard");
-    } else {
-      router.replace("/");
+      if (token) {
+        localStorage.setItem("token", token);
+        router.replace("/dashboard");
+      } else {
+        router.replace("/");
+      }
     }
   }, [searchParams, router]);
 
