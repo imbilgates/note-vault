@@ -15,10 +15,8 @@ export default function AuthPage() {
 
   // ✅ Redirect if already authenticated
   useEffect(() => {
-    if (!loading && isAuthenticated) {
+    if (isAuthenticated) {
       router.replace("/dashboard");
-    }else{
-      router.replace("/");
     }
   }, [isAuthenticated, loading, router]);
 

@@ -3,20 +3,15 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function AuthSuccessPage() {
+export default function AuthSuccessPage({ token }: { token?: string }) {
   const router = useRouter();
 
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    const token = query.get("token");
-
     if (token) {
       localStorage.setItem("token", token);
-      router.replace("/dashboard");
-    } else {
-      router.replace("/");
+      router.push("/dashboard");
     }
-  }, [router]);
+  }, [token, router]);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-white dark:bg-zinc-900">
