@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🗒️ NoteVault — Full Stack Note-Taking App
 
-## Getting Started
+NoteVault is a full-stack note-taking application built as part of an internship assignment. It allows users to sign up or sign in using OTP-based email authentication and manage their personal notes securely.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 🔐 **OTP-Based Authentication**
+  - Sign up or log in using email and OTP (no password).
+  - Option to store session token in `localStorage`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 📝 **Notes Dashboard**
+  - View your personal notes.
+  - Create new notes via modal.
+  - Delete existing notes.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 🧠 **JWT Authorization**
+  - Token stored in localStorage and used in API requests.
+  - Backend validates token using `Authorization` header.
 
-## Learn More
+- ⚙️ **API Routes (Next.js App Router)**
+  - Fully secured RESTful endpoints for notes.
+  - Middleware-compatible JWT token validation (optional).
 
-To learn more about Next.js, take a look at the following resources:
+- 💬 **Toast Notifications**
+  - Success & error feedback using `sonner`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- 💡 **Modern UI**
+  - Built with `shadcn/ui`, Tailwind CSS, and custom design based on Figma.
+  - Fully responsive for mobile and desktop.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🛠️ Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Frontend
+- **Next.js (App Router)**
+- **React + TypeScript**
+- **Tailwind CSS**
+- **shadcn/ui**
+- **React Hook Form + Zod**
+- **Recharts** (if added later)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Backend
+- **Node.js with Next.js API routes**
+- **MongoDB with Mongoose**
+- **JWT for Auth**
+- **Nodemailer (optional for email OTP)**
+
+---
+
+🔒 Authentication Flow
+Step 1: User enters email → requests OTP.
+
+Step 2: Enters OTP → server verifies.
+
+Step 3: Server returns JWT → stored in localStorage.
+
+Step 4: Protected API routes require Authorization: Bearer <token> header.
+
+
+📌 Notes
+❌ No cookie-based auth or middleware protection (uses localStorage).
+
+✅ Easily extendable to support Google login or password auth.
+
+📧 Author
+Name: Bilkates
+
+Status: Internship Assignment ✅
+
+Stack: React • Next.js • Node • MongoDB • JWT
+
+
+
