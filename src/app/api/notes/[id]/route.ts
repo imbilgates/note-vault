@@ -3,7 +3,10 @@ import { connectDB } from "@/lib/db";
 import { Note } from "@/models/Note";
 import { verifyToken } from "@/lib/jwt";
 
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } } // ✅ Correct format
+) {
   await connectDB();
 
   const authHeader = req.headers.get("authorization");
@@ -14,9 +17,11 @@ export async function DELETE(req: NextRequest, context: { params: { id: string }
   try {
     const token = authHeader.split(" ")[1];
     const decoded = verifyToken(token) as { email: string };
-    const { id } = context.params;
 
-    const note = await Note.findOneAndDelete({ _id: id, userEmail: decoded.email });
+    const note = await Note.findOneAndDelete({
+      _id: params.id,
+      userEmail: decoded.email,
+    });
 
     if (!note) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });

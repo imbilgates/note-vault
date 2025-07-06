@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+
 import { fetchNotes, createNote, deleteNote } from "@/services/noteService";
+import { decodeToken } from "@/utils/token";
+
 import CreateNoteButton from "@/components/notes/CreateNoteButton";
 import NotesList from "@/components/notes/NotesList";
 import NewNoteModal from "@/components/notes/NewNoteModal";
@@ -26,29 +29,28 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
+
     if (!storedToken) {
       router.push("/");
       return;
     }
 
-    try {
-      const payload = JSON.parse(atob(storedToken.split(".")[1]));
-      setEmail(payload.email);
-      setUsername(payload.username || "User");
-      setToken(storedToken);
-    } catch {
+    const decoded = decodeToken(storedToken);
+    if (!decoded || !decoded.email) {
       localStorage.removeItem("token");
       router.push("/");
+      return;
     }
-  }, [router]);
 
-  useEffect(() => {
-    if (!token) return;
-    fetchNotes(token)
+    setEmail(decoded.email);
+    setUsername(decoded.username || "User");
+    setToken(storedToken);
+
+    fetchNotes(storedToken)
       .then((data) => setNotes(data))
-      .catch((err) => console.error(err))
+      .catch((err) => console.error("Failed to fetch notes:", err))
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [router]);
 
   const handleCreateNote = async (content: string) => {
     if (!token) return;
@@ -56,7 +58,7 @@ export default function DashboardPage() {
     try {
       const newNote = await createNote(token, content);
       setNotes((prev) => [newNote, ...prev]);
-      setOpenModal(false); // close modal
+      setOpenModal(false);
     } catch (err) {
       console.error("Failed to create note:", err);
     } finally {
@@ -104,9 +106,7 @@ export default function DashboardPage() {
       {/* Welcome Card */}
       <div className="bg-white p-4 rounded-xl shadow-md mb-6">
         <h2 className="text-lg font-bold mb-1">Welcome, {username}!</h2>
-        <p className="text-gray-600">
-          Email: {email}
-        </p>
+        <p className="text-gray-600">Email: {email}</p>
       </div>
 
       {/* Create Note Button */}
@@ -114,11 +114,11 @@ export default function DashboardPage() {
 
       {/* Notes Section */}
       <div>
-        <h3 className="text-xl font-semibold mb-4"> Notes</h3>
+        <h3 className="text-xl font-semibold mb-4">Notes</h3>
         <NotesList notes={notes} loading={loading} onDelete={handleDeleteNote} />
       </div>
 
-      {/* Note Modal */}
+      {/* Modal */}
       <NewNoteModal
         open={openModal}
         onClose={() => setOpenModal(false)}
