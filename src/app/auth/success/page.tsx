@@ -1,9 +1,10 @@
 import AuthSuccessPage from "@/components/auth/AuthSuccessPage";
 
-export default function Page({
-  searchParams,
-}: {
-  searchParams: { token?: string };
-}) {
-  return <AuthSuccessPage token={searchParams.token} />;
+type Props = {
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
+
+export default function Page({ searchParams }: Props) {
+  const token = typeof searchParams?.token === "string" ? searchParams.token : undefined;
+  return <AuthSuccessPage token={token} />;
 }
