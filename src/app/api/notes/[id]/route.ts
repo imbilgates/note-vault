@@ -3,10 +3,7 @@ import { connectDB } from "@/lib/db";
 import { Note } from "@/models/Note";
 import { verifyToken } from "@/lib/jwt";
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } } // ✅ Correct format
-) {
+export async function DELETE(req: NextRequest) {
   await connectDB();
 
   const authHeader = req.headers.get("authorization");
@@ -18,8 +15,11 @@ export async function DELETE(
     const token = authHeader.split(" ")[1];
     const decoded = verifyToken(token) as { email: string };
 
+    // ✅ Get ID from the URL
+    const id = req.nextUrl.pathname.split("/").pop();
+
     const note = await Note.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userEmail: decoded.email,
     });
 
