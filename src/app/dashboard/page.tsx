@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { fetchNotes, createNote, deleteNote } from "@/services/noteService";
-import { decodeToken } from "@/utils/token";
+import { useAuth } from "@/context/AuthContext";
 
 import CreateNoteButton from "@/components/notes/CreateNoteButton";
 import NotesList from "@/components/notes/NotesList";
@@ -17,9 +17,7 @@ interface Note {
 }
 
 export default function DashboardPage() {
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [token, setToken] = useState<string | null>(null);
+  const { user, token, logout, isAuthenticated, loading: authLoading } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -28,29 +26,18 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
+    if (authLoading) return;
 
-    if (!storedToken) {
+    if (!token || !user?.email) {
       router.push("/");
       return;
     }
 
-    const decoded = decodeToken(storedToken);
-    if (!decoded || !decoded.email) {
-      localStorage.removeItem("token");
-      router.push("/");
-      return;
-    }
-
-    setEmail(decoded.email);
-    setUsername(decoded.username || "User");
-    setToken(storedToken);
-
-    fetchNotes(storedToken)
+    fetchNotes(token)
       .then((data) => setNotes(data))
       .catch((err) => console.error("Failed to fetch notes:", err))
       .finally(() => setLoading(false));
-  }, [router]);
+  }, [authLoading, token, user, router]);
 
   const handleCreateNote = async (content: string) => {
     if (!token) return;
@@ -76,10 +63,13 @@ export default function DashboardPage() {
     }
   };
 
-  const handleSignOut = () => {
-    localStorage.removeItem("token");
-    router.push("/");
-  };
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-white px-6 pt-4 pb-10">
@@ -96,7 +86,7 @@ export default function DashboardPage() {
           <h1 className="text-xl font-semibold">Dashboard</h1>
         </div>
         <button
-          onClick={handleSignOut}
+          onClick={logout}
           className="text-blue-600 underline font-medium"
         >
           Sign Out
@@ -105,8 +95,8 @@ export default function DashboardPage() {
 
       {/* Welcome Card */}
       <div className="bg-white p-4 rounded-xl shadow-md mb-6">
-        <h2 className="text-lg font-bold mb-1">Welcome, {username}!</h2>
-        <p className="text-gray-600">Email: {email}</p>
+        <h2 className="text-lg font-bold mb-1">Welcome, {user?.username || "User"}!</h2>
+        <p className="text-gray-600">Email: {user?.email}</p>
       </div>
 
       {/* Create Note Button */}

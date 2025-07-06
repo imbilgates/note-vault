@@ -1,13 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import SignInForm from "./SignInForm";
 import SignUpForm from "./SignUpForm";
+import GoogleSignInButton from "./GoogleSignInButton";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
+  const { isAuthenticated, loading } = useAuth();
+  const router = useRouter();
+
+  // ✅ Redirect if already authenticated
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [isAuthenticated, loading, router]);
+
   const toggleForm = () => setIsSignIn((prev) => !prev);
+
+  // Optional: show spinner while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen grid grid-cols-1 md:grid-cols-2 relative bg-white dark:bg-zinc-900">
@@ -25,7 +47,7 @@ export default function AuthPage() {
       {/* Left Side: Form */}
       <div className="flex items-center justify-center px-6 sm:px-12 py-12">
         <div className="w-full max-w-md space-y-6">
-          {/* 🔰 Show logo centered above form only on mobile */}
+          {/* 🔰 Mobile Logo */}
           <div className="block md:hidden flex justify-center">
             <Image
               src="/assets/icon.png"
@@ -41,10 +63,12 @@ export default function AuthPage() {
           ) : (
             <SignUpForm toggleForm={toggleForm} />
           )}
+
+          <GoogleSignInButton />
         </div>
       </div>
 
-      {/* Right Side: Image */}
+      {/* Right Side: Illustration */}
       <div className="hidden md:flex items-center justify-center bg-[#f3f4f6] dark:bg-zinc-900">
         <Image
           src="/assets/bg.png"
