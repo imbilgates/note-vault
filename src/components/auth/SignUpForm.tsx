@@ -55,6 +55,7 @@ export default function SignUpForm({ toggleForm }: Props) {
       localStorage.setItem("token", res.token);
       toast.success("Signed up successfully!");
       router.push("/dashboard");
+      window.location.reload();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Invalid OTP");
     } finally {

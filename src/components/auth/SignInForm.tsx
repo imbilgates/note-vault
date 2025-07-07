@@ -50,6 +50,7 @@ export default function SignInForm({ toggleForm }: Props) {
       localStorage.setItem("token", res.token);
       toast.success("Signed in successfully!");
       router.push("/dashboard");
+      window.location.reload();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Invalid OTP");
     } finally {
